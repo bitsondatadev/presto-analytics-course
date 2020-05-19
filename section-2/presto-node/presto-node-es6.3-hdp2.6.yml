@@ -1,0 +1,60 @@
+version: '3.7'
+services:
+  presto-master:
+    hostname: presto-master
+    image: 'prestosql/presto:332'
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./conf/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+      - ./etc:/usr/lib/presto/etc:ro
+    networks:
+      - presto-network
+
+  hadoop-master:
+    hostname: hadoop-master
+    image: 'prestodev/hdp2.6-hive:latest'
+    ports:
+      - '1180:1180'
+      - '8020:8020'
+      - '8042:8042'
+      - '8088:8088'
+      - '9083:9083' # Metastore Thrift
+      - '9864:9864' # DataNode Web UI since Hadoop 3
+      - '9870:9870' # NameNode Web UI since Hadoop 3
+      - '10000:10000' # HiveServer2
+      - '19888:19888'
+      - '50070:50070' # NameNode Web UI prior to Hadoop 3
+      - '50075:50075' # DataNode Web UI prior to Hadoop 3
+    volumes:
+      - ./conf/tez-site.xml:/etc/tez/conf/tez-site.xml:ro
+    networks:
+      - presto-network
+
+  es-master:
+    hostname: es-master
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    #container_name: es-master
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - presto-network
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  presto-network:
+    driver: bridge
