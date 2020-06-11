@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  presto-master:
+    hostname: presto-master
+    image: 'prestosql/presto:latest'
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./conf/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+      - ./etc:/usr/lib/presto/etc:ro
+    networks:
+      - presto-network
+
+  hadoop-master:
+    hostname: hadoop-master
+    image: 'prestodev/hdp3.1-hive:latest'
+    ports:
+      - '1180:1180'
+      - '8020:8020'
+      - '8042:8042'
+      - '8088:8088'
+      - '9083:9083' # Metastore Thrift
+      - '9864:9864' # DataNode Web UI since Hadoop 3
+      - '9870:9870' # NameNode Web UI since Hadoop 3
+      - '10000:10000' # HiveServer2
+      - '19888:19888'
+    volumes:
+      - ./conf/tez-site.xml:/etc/tez/conf/tez-site.xml:ro
+    networks:
+      - presto-network
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  presto-network:
+    driver: bridge

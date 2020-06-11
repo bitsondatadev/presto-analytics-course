@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  presto-master:
+    hostname: presto-master
+    image: 'prestosql/presto:latest'
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./etc:/usr/lib/presto/etc:ro
+volumes:
+  data01:
+    driver: local

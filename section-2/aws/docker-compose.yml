@@ -12,7 +12,7 @@ services:
 
   hadoop-master:
     hostname: hadoop-master
-    image: 'prestodev/hdp2.6-hive:latest'
+    image: 'prestodev/hdp3.1-hive:latest'
     ports:
       - '9083:9083' # Metastore Thrift
     volumes:
@@ -20,25 +20,6 @@ services:
     networks:
       - presto-network
 
-  minio:
-    hostname: minio
-    image: 'minio/minio:latest'
-    container_name: minio
-    ports:
-      - '9000:9000'
-    volumes:
-#      - './minio/config:/root/.minio'
-      - data01:/data
-    environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    command: server /data
-    networks:
-      - presto-network
-
-volumes:
-  data01:
-    driver: local
 
 networks:
   presto-network:
